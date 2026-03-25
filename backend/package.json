@@ -4,21 +4,41 @@
   "private": true,
   "scripts": {
     "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
     "build": "tsc",
     "lint": "eslint src --ext .ts",
-    "test": "jest --passWithNoTests"
+    "test": "jest --passWithNoTests",
+    "typeorm": "typeorm-ts-node-commonjs",
+    "migration:generate": "npm run typeorm migration:generate -- -d src/config/database.ts",
+    "migration:run": "npm run typeorm migration:run -- -d src/config/database.ts",
+    "migration:revert": "npm run typeorm migration:revert -- -d src/config/database.ts",
+    "seed": "ts-node src/database/seed.ts",
+    "db:reset": "docker-compose down -v && docker-compose up -d",
+    "db:migrate": "npm run migration:run",
+    "db:seed": "docker exec -i niff_stellar_db psql -U niff_user -d niff_stellar < src/database/seed.sql"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "@types/jsonwebtoken": "^9.0.10",
+    "dotenv": "^17.3.1",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.11.3",
+    "reflect-metadata": "^0.2.1",
+    "typeorm": "^0.3.20"
   },
   "devDependencies": {
     "@types/express": "^5",
     "@types/node": "^22",
+    "@types/pg": "^8.10.9",
+    "@types/supertest": "^7.2.0",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
     "eslint": "^9",
     "jest": "^29",
+    "supertest": "^7.2.2",
     "ts-jest": "^29",
-    "typescript": "^5"
+    "ts-node": "^10.9.2",
+    "typescript": "^5",
+    "typescript-eslint": "^8.57.2"
   }
 }
