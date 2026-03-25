@@ -152,6 +152,7 @@ pub struct Claim {
     pub details: String,
     pub image_urls: Vec<String>,
     pub status: ClaimStatus,
+    pub voting_deadline_ledger: u32,
     pub approve_votes: u32,
     pub reject_votes: u32,
     /// Ledger sequence at which this claim was filed (voting window anchor).

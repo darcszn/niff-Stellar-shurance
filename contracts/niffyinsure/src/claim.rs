@@ -196,27 +196,6 @@ pub fn process_claim(env: &Env, claim_id: u64) -> Result<(), Error> {
     if claim.status != ClaimStatus::Approved {
         return Err(Error::ClaimNotApproved);
     }
-<<<<<<< HEAD
-    if claim.amount <= 0 {
-        return Err(Error::ClaimAmountZero);
-    }
-
-    // Verify the claim's asset is still allowlisted (admin may have removed it).
-    if !is_allowed_asset(env, &claim.asset) {
-        return Err(Error::InvalidAsset);
-    }
-
-    // Verify the claim's asset matches the policy's bound asset.
-    if let Some(policy) = storage::get_policy(env, &claim.claimant, claim.policy_id) {
-        if claim.asset != policy.asset {
-            return Err(Error::InvalidAsset);
-        }
-    }
-
-    let token_client = token::Client::new(env, &claim.asset);
-    let treasury = treasury_address(env);
-    check_treasury_balance(&token_client, &treasury, claim.amount)?;
-=======
 
     payout(env, &claim)?;
     claim.status = ClaimStatus::Paid;
@@ -234,7 +213,6 @@ fn payout(env: &Env, claim: &Claim) -> Result<(), Error> {
     if token_client.balance(&treasury) < claim.amount {
         return Err(Error::InsufficientTreasury);
     }
->>>>>>> f31c36f7aaafe0e6592326e70bf1e4291a0fcd67
 
     token_client.transfer(&treasury, &claim.claimant, &claim.amount);
 
@@ -261,3 +239,4 @@ pub fn is_allowed_asset(env: &Env, asset: &Address) -> bool {
 pub fn set_allowed_asset(env: &Env, asset: &Address, allowed: bool) {
     storage::set_allowed_asset(env, asset, allowed);
 }
+
