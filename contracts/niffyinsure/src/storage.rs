@@ -27,6 +27,8 @@ pub enum DataKey {
     ClaimCounter,
     Paused,
     ActivePolicyCount(Address),
+    /// Optional per-transaction cap for emergency sweep operations (i128).
+    SweepCap,
     // ── Persistent tier ──────────────────────────────────────────────────
     Policy(Address, u32),
     PolicyCounter(Address),
@@ -452,4 +454,21 @@ pub fn get_last_claim_ledger(env: &Env, holder: &Address) -> Option<u32> {
     env.storage()
         .persistent()
         .get(&DataKey::LastClaimLedger(holder.clone()))
+}
+
+// ── Sweep cap (instance) ──────────────────────────────────────────────────────
+
+/// Set optional per-transaction cap for emergency sweep operations.
+/// None means no cap (unlimited sweep amount, subject to other constraints).
+pub fn set_sweep_cap(env: &Env, cap: Option<i128>) {
+    if let Some(c) = cap {
+        env.storage().instance().set(&DataKey::SweepCap, &c);
+    } else {
+        env.storage().instance().remove(&DataKey::SweepCap);
+    }
+}
+
+/// Get configured sweep cap (None if not set).
+pub fn get_sweep_cap(env: &Env) -> Option<i128> {
+    env.storage().instance().get(&DataKey::SweepCap)
 }
