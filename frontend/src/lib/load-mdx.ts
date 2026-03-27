@@ -1,15 +1,11 @@
-import { compileMDX } from 'next-mdx-remote/rsc';
+import { readFile } from 'fs/promises'
+import path from 'path'
+import { compileMDX } from 'next-mdx-remote/rsc'
 
-/**
- * Load and compile an MDX string for use in React Server Components.
- * Returns the compiled content and any frontmatter.
- */
-export async function loadMdx<TFrontmatter = Record<string, unknown>>(
-  source: string,
-) {
-  const { content, frontmatter } = await compileMDX<TFrontmatter>({
-    source,
-    options: { parseFrontmatter: true },
-  });
-  return { content, frontmatter };
+const CONTENT_DIR = path.join(process.cwd(), 'src', 'content')
+
+export async function loadMdx(slug: string) {
+  const filePath = path.join(CONTENT_DIR, `${slug}.mdx`)
+  const source = await readFile(filePath, 'utf8')
+  return compileMDX({ source, options: { parseFrontmatter: false } })
 }
