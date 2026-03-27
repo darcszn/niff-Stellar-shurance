@@ -154,17 +154,15 @@ impl NiffyInsure {
     }
 
     /// Admin-only: add or remove an asset from the allowlist.
-    /// Emits ("asset", "added") or ("asset", "removed") for indexers.
     pub fn set_allowed_asset(env: Env, asset: Address, allowed: bool) {
-        let admin = storage::get_admin(&env);
-        admin.require_auth();
+        let _admin = admin::require_admin(&env);
         storage::bump_instance(&env);
         claim::set_allowed_asset(&env, &asset, allowed);
         AllowedAssetUpdated { asset, allowed }.publish(&env);
     }
 
     pub fn is_allowed_asset(env: Env, asset: Address) -> bool {
-        claim::is_allowed_asset(&env, &asset)
+        storage::is_allowed_asset(&env, &asset)
     }
 
     pub fn process_claim(env: Env, claim_id: u64) -> Result<(), validate::Error> {
@@ -201,6 +199,35 @@ impl NiffyInsure {
 
     pub fn get_claim(env: Env, claim_id: u64) -> Result<types::Claim, validate::Error> {
         claim::get_claim(&env, claim_id)
+    }
+
+    pub fn file_claim(
+        env: Env,
+        holder: Address,
+        policy_id: u32,
+        amount: i128,
+        details: String,
+        image_urls: Vec<String>,
+    ) -> u64 {
+        holder.require_auth();
+        claim::file_claim(&env, &holder, policy_id, amount, &details, &image_urls)
+            .unwrap_or_else(|e| panic_with_error!(&env, e))
+    }
+
+    pub fn vote_on_claim(
+        env: Env,
+        voter: Address,
+        claim_id: u64,
+        vote: types::VoteOption,
+    ) -> types::ClaimStatus {
+        voter.require_auth();
+        claim::vote_on_claim(&env, &voter, claim_id, &vote)
+            .unwrap_or_else(|e| panic_with_error!(&env, e))
+    }
+
+    pub fn finalize_claim(env: Env, claim_id: u64) -> types::ClaimStatus {
+        claim::finalize_claim(&env, claim_id)
+            .unwrap_or_else(|e| panic_with_error!(&env, e))
     }
 
     pub fn get_claim_counter(env: Env) -> u64 {

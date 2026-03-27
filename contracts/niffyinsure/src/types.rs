@@ -309,6 +309,8 @@ pub struct Claim {
     pub policy_id: u32,
     pub claimant: Address,
     pub amount: i128,
+    /// SEP-41 asset contract bound to the policy at filing time.
+    pub asset: Address,
     pub details: String,
     pub image_urls: Vec<String>,
     pub status: ClaimStatus,
