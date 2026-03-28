@@ -21,11 +21,8 @@ const API_ORIGIN = process.env.NEXT_PUBLIC_API_URL
   ? (() => { try { return new URL(process.env.NEXT_PUBLIC_API_URL).origin } catch { return '' } })()
   : ''
 
-// Analytics (Plausible) — only added to CSP when analytics is enabled
-const ANALYTICS_ENABLED = process.env.NEXT_PUBLIC_ANALYTICS_ENABLED === 'true'
-const ANALYTICS_SRC = process.env.NEXT_PUBLIC_ANALYTICS_SRC ?? 'https://plausible.io/js/script.js'
-const ANALYTICS_ORIGIN = ANALYTICS_ENABLED
-  ? (() => { try { return new URL(ANALYTICS_SRC).origin } catch { return '' } })()
+const RAMP_ORIGIN = process.env.NEXT_PUBLIC_RAMP_ENABLED === 'true' && process.env.RAMP_URL
+  ? (() => { try { return new URL(process.env.RAMP_URL).origin } catch { return '' } })()
   : ''
 
 const REPORT_URI = process.env.CSP_REPORT_URI ?? ''
