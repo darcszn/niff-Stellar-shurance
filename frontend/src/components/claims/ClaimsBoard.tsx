@@ -1,17 +1,19 @@
 "use client";
 
 // Feature: claims-board
-// Requirements: 1.1, 1.2, 1.3, 1.4, 4.1, 4.3, 6.1, 6.5, 9.2
+// Requirements: 1.1, 1.2, 1.3, 1.4, 4.1, 4.3, 6.1, 6.5, 9.2, 10.x
 
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { FilterBar } from "./FilterBar";
 import { ClaimList } from "./ClaimList";
 import { PaginationControls } from "./PaginationControls";
+import { NotificationPermissionBanner, getClaimNotificationsEnabled, setClaimNotificationsEnabled, ClaimNotificationsToggle } from "./NotificationPermissionBanner";
 import { useClaimsData } from "@/lib/hooks/useClaimsData";
 import { useRealtimeTallies } from "@/lib/hooks/useRealtimeTallies";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useQueryParamFilters } from "@/lib/hooks/useQueryParamFilters";
-import { useNotifications } from "@/lib/hooks/useNotifications";
+import { useNotifications, useClaimStatusNotifications } from "@/lib/hooks/useNotifications";
+import { useClaimWatcher } from "@/lib/hooks/useClaimWatcher";
 import type { ClaimFilters, TallyUpdate } from "./types";
 import type { ClaimBoard } from "@/lib/schemas/claims-board";
 
@@ -83,6 +85,22 @@ export function ClaimsBoard() {
   // ── Notifications (Req 10.1, 10.2, 10.3) ─────────────────────────────────
   useNotifications(localClaims, filters);
 
+  // ── Claim status change notifications ────────────────────────────────────
+  const [notifEnabled, setNotifEnabled] = useState(false);
+  // Read from localStorage after mount (avoids SSR mismatch).
+  useEffect(() => {
+    setNotifEnabled(getClaimNotificationsEnabled());
+  }, []);
+
+  const { notify } = useClaimStatusNotifications(notifEnabled);
+
+  // Watch all currently visible claim IDs for status changes.
+  useClaimWatcher({
+    claimIds: claimIds,
+    onStatusChange: notify,
+    enabled: notifEnabled,
+  });
+
   // ── Real-time tally updates (Req 6.1, 6.5) ────────────────────────────────
   const claimIds = localClaims.map((c) => c.claim_id);
 
@@ -113,6 +131,19 @@ export function ClaimsBoard() {
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-4">
+      {/* Notification permission banner — shown once, never nagged */}
+      <NotificationPermissionBanner
+        onDismiss={() => setNotifEnabled(getClaimNotificationsEnabled())}
+      />
+
+      {/* Settings toggle (inline; move to a settings page as needed) */}
+      <ClaimNotificationsToggle
+        enabled={notifEnabled}
+        onChange={(v) => {
+          setClaimNotificationsEnabled(v);
+          setNotifEnabled(v);
+        }}
+      />
       {/* Re-auth prompt (Req 4.3) */}
       {showReauthPrompt && (
         <div
