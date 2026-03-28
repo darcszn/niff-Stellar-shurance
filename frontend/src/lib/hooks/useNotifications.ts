@@ -5,11 +5,10 @@
 //               + status-change notifications, privacy-safe copy,
 //                 in-app toast fallback, mute/snooze per claim
 
-import { useEffect, useRef, useCallback } from "react";
-import { toast } from "@/components/ui/use-toast";
-import type { ClaimBoard } from "@/lib/schemas/claims-board";
+import { useEffect, useRef } from "react";
+
 import type { ClaimFilters } from "@/components/claims/types";
-import type { ClaimStatusUpdate } from "./useClaimWatcher";
+import type { ClaimBoard } from "@/lib/schemas/claims-board";
 
 export interface NotificationPrefs {
   enabled: boolean;
