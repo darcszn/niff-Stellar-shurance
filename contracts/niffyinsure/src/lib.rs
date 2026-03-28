@@ -219,11 +219,7 @@ impl NiffyInsure {
     ) -> Result<(), validate::Error> {
         let admin = storage::get_admin(&env);
         admin.require_auth();
-        if ledgers < ledger::MIN_VOTING_DURATION_LEDGERS
-            || ledgers > ledger::MAX_VOTING_DURATION_LEDGERS
-        {
-            return Err(validate::Error::VotingDurationOutOfBounds);
-        }
+        ledger::validate_voting_duration_ledgers(ledgers)?;
         storage::set_voting_duration_ledgers(&env, ledgers);
         Ok(())
     }
