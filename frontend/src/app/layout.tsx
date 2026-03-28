@@ -4,6 +4,8 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { inter, ibmPlexMono } from "@/lib/fonts";
 import { ThemeProvider } from "@/components/theme-provider";
+import { WalletProvider } from "@/features/wallet";
+import { NetworkMismatchModal } from "@/features/wallet";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -79,8 +81,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="font-sans antialiased">
         <ThemeProvider defaultTheme="system" storageKey="niffyinsur-theme">
-          {children}
-          <Toaster />
+          <WalletProvider>
+            {children}
+            <NetworkMismatchModal />
+            <Toaster />
+          </WalletProvider>
         </ThemeProvider>
       </body>
     </html>
